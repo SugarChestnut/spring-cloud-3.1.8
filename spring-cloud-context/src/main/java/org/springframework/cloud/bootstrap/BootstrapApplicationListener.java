@@ -96,7 +96,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
 		ConfigurableEnvironment environment = event.getEnvironment();
-		// 在命令行和系统环境中判断时候开启 bootstrap，添加 spring-cloud-bootstrap 后，都是开启状态
+		// 在命令行和系统环境中判断时候开启 bootstrap，添加 spring-cloud-bootstrap 依赖后，都是开启状态
 		if (!bootstrapEnabled(environment) && !useLegacyProcessing(environment)) {
 			return;
 		}
@@ -109,7 +109,6 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		// 如果不存在环境变量 spring.cloud.bootstrap.name 就取值 bootstrap
 		String configName = environment.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
 		for (ApplicationContextInitializer<?> initializer : event.getSpringApplication().getInitializers()) {
-			// 启动的时候是不存在的
 			if (initializer instanceof ParentContextApplicationContextInitializer) {
 				context = findBootstrapContext((ParentContextApplicationContextInitializer) initializer, configName);
 			}
@@ -117,6 +116,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		if (context == null) {
 			// 创建 bootstrap 的 ApplicationContext
 			context = bootstrapServiceContext(environment, event.getSpringApplication(), configName);
+			// 向原始 SpringApplication 添加监听器
 			event.getSpringApplication().addListeners(new CloseContextOnFailureApplicationListener(context));
 		}
 

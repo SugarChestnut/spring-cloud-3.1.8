@@ -3,7 +3,6 @@
 		 xmlns="http://maven.apache.org/POM/4.0.0"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-commons-parent</artifactId>
 	<version>3.1.8</version>
 	<packaging>pom</packaging>
@@ -36,6 +35,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.5.0</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -184,6 +184,7 @@
 		<module>spring-cloud-starter</module>
 		<module>spring-cloud-starter-bootstrap</module>
 		<module>spring-cloud-starter-loadbalancer</module>
+		<module>spring-cloud-example</module>
 		<module>docs</module>
 	</modules>
 </project>
