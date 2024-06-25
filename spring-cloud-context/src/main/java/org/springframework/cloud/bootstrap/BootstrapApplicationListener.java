@@ -96,7 +96,8 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
 		ConfigurableEnvironment environment = event.getEnvironment();
-		// 在命令行和系统环境中判断时候开启 bootstrap，添加 spring-cloud-bootstrap 依赖后，都是开启状态
+		// 环境变量 spring.cloud.bootstrap.enabled，或者添加 spring-cloud-bootstrap 依赖
+		// 或者 spring.config.use-legacy-processing
 		if (!bootstrapEnabled(environment) && !useLegacyProcessing(environment)) {
 			return;
 		}
@@ -106,17 +107,19 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 			return;
 		}
 		ConfigurableApplicationContext context = null;
-		// 如果不存在环境变量 spring.cloud.bootstrap.name 就取值 bootstrap
+		// 配置名称 如果不存在环境变量 spring.cloud.bootstrap.name 就取值 bootstrap
 		String configName = environment.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
+		// ParentContextApplicationContextInitializer 是创建 parent context 的时候添加进入的
 		for (ApplicationContextInitializer<?> initializer : event.getSpringApplication().getInitializers()) {
 			if (initializer instanceof ParentContextApplicationContextInitializer) {
+				// 获取 parent context
 				context = findBootstrapContext((ParentContextApplicationContextInitializer) initializer, configName);
 			}
 		}
 		if (context == null) {
-			// 创建 bootstrap 的 ApplicationContext
+			// 创建 parent ApplicationContext
 			context = bootstrapServiceContext(environment, event.getSpringApplication(), configName);
-			// 向原始 SpringApplication 添加监听器
+			// 向原始 SpringApplication 添加监听器，当容器启动失败的时候，关闭当前创建的容器
 			event.getSpringApplication().addListeners(new CloseContextOnFailureApplicationListener(context));
 		}
 
@@ -146,6 +149,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 
 	private ConfigurableApplicationContext bootstrapServiceContext(ConfigurableEnvironment environment,
 			final SpringApplication application, String configName) {
+		// 创建新的 environment
 		ConfigurableEnvironment bootstrapEnvironment = new AbstractEnvironment() {
 		};
 		MutablePropertySources bootstrapProperties = bootstrapEnvironment.getPropertySources();
@@ -166,7 +170,9 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		if (StringUtils.hasText(configAdditionalLocation)) {
 			bootstrapMap.put("spring.config.additional-location", configAdditionalLocation);
 		}
+		// 添加 propertySource
 		bootstrapProperties.addFirst(new MapPropertySource(BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapMap));
+		// 浅拷贝环境数据
 		for (PropertySource<?> source : environment.getPropertySources()) {
 			if (source instanceof StubPropertySource) {
 				continue;
@@ -178,6 +184,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 				.bannerMode(Mode.OFF).environment(bootstrapEnvironment)
 				// Don't use the default properties in this builder
 				.registerShutdownHook(false).logStartupInfo(false).web(WebApplicationType.NONE);
+		// 创建一个新的 SpringApplication
 		final SpringApplication builderApplication = builder.application();
 		if (builderApplication.getMainApplicationClass() == null) {
 			// gh_425:
@@ -196,6 +203,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 			// way to switch those off.
 			builderApplication.setListeners(filterListeners(builderApplication.getListeners()));
 		}
+		// 扫描的配置类
 		builder.sources(BootstrapImportSelectorConfiguration.class);
 		final ConfigurableApplicationContext context = builder.run();
 		// gh-214 using spring.application.name=bootstrap to set the context id via
@@ -208,6 +216,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		// It only has properties in it now that we don't want in the parent so remove
 		// it (and it will be added back later)
 		bootstrapProperties.remove(BOOTSTRAP_PROPERTY_SOURCE_NAME);
+		// 合并两边的环境数据
 		mergeDefaultProperties(environment.getPropertySources(), bootstrapProperties);
 		return context;
 	}
@@ -243,6 +252,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 				}
 			}
 		}
+		// 合并额外的数据
 		mergeAdditionalPropertySources(environment, bootstrap);
 	}
 
@@ -251,6 +261,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		ExtendedDefaultPropertySource result = defaultProperties instanceof ExtendedDefaultPropertySource
 				? (ExtendedDefaultPropertySource) defaultProperties
 				: new ExtendedDefaultPropertySource(DEFAULT_PROPERTIES, defaultProperties);
+		// 原始 environment 不存在的 propertySource
 		for (PropertySource<?> source : bootstrap) {
 			if (!environment.contains(source.getName())) {
 				result.add(source);
@@ -293,10 +304,13 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		if (application.getAllSources().contains(BootstrapMarkerConfiguration.class)) {
 			return;
 		}
+		// 添加标志类
 		application.addPrimarySources(Arrays.asList(BootstrapMarkerConfiguration.class));
 		@SuppressWarnings("rawtypes")
 		Set target = new LinkedHashSet<>(application.getInitializers());
+		// 获得容器中的 bean
 		target.addAll(getOrderedBeansOfType(context, ApplicationContextInitializer.class));
+		// 相当于增量更新
 		application.setInitializers(target);
 		addBootstrapDecryptInitializer(application);
 
@@ -305,6 +319,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		// environment. This allows any profiles activated during bootstrap to be
 		// activated when
 		// config data runs in the main application context.
+		// add 更合适
 		environment.setActiveProfiles(context.getEnvironment().getActiveProfiles());
 	}
 
@@ -389,8 +404,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 			PropertySource<?> removed = environment.getPropertySources().remove(DEFAULT_PROPERTIES);
 			if (removed instanceof ExtendedDefaultPropertySource) {
 				ExtendedDefaultPropertySource defaultProperties = (ExtendedDefaultPropertySource) removed;
-				environment.getPropertySources()
-						.addLast(new MapPropertySource(DEFAULT_PROPERTIES, defaultProperties.getSource()));
+				environment.getPropertySources().addLast(new MapPropertySource(DEFAULT_PROPERTIES, defaultProperties.getSource()));
 				for (PropertySource<?> source : defaultProperties.getPropertySources().getPropertySources()) {
 					if (!environment.getPropertySources().contains(source.getName())) {
 						environment.getPropertySources().addBefore(DEFAULT_PROPERTIES, source);

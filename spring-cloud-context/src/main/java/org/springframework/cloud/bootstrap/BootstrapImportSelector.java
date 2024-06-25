@@ -48,6 +48,7 @@ import org.springframework.util.StringUtils;
  */
 public class BootstrapImportSelector implements EnvironmentAware, DeferredImportSelector {
 
+	// bootstrapEnvironment
 	private Environment environment;
 
 	private MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory();
