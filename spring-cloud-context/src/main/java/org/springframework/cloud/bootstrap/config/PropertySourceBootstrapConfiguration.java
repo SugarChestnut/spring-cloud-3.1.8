@@ -102,6 +102,7 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 	 * spring.cloud.config.initialize-on-context-refresh is true this method provides a
 	 * "second fetch" of configuration data to fetch any additional configuration data
 	 * from profiles that have been activated.
+	 * 在创建 main application context 后获取额外配置
 	 */
 	@Override
 	public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -325,9 +326,10 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 	}
 
 	/*
-	 * The ConextRefreshedEvent gets called at the end of the boostrap phase after config
+	 * The ContextRefreshedEvent gets called at the end of the boostrap phase after config
 	 * data is loaded during bootstrap. This will run and do an "initial fetch" of
-	 * configuration data during bootstrap but before the main applicaiton context starts.
+	 * configuration data during bootstrap but before the main application context starts.
+	 * 在 main application context 开始之前获取额外配置
 	 */
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {

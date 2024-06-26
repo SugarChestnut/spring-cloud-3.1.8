@@ -109,7 +109,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		ConfigurableApplicationContext context = null;
 		// 配置名称 如果不存在环境变量 spring.cloud.bootstrap.name 就取值 bootstrap
 		String configName = environment.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
-		// ParentContextApplicationContextInitializer 是创建 parent context 的时候添加进入的
+		//
 		for (ApplicationContextInitializer<?> initializer : event.getSpringApplication().getInitializers()) {
 			if (initializer instanceof ParentContextApplicationContextInitializer) {
 				// 获取 parent context
@@ -205,6 +205,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		}
 		// 扫描的配置类
 		builder.sources(BootstrapImportSelectorConfiguration.class);
+		// 创建 applicationContext
 		final ConfigurableApplicationContext context = builder.run();
 		// gh-214 using spring.application.name=bootstrap to set the context id via
 		// `ContextIdApplicationContextInitializer` prevents apps from getting the actual
@@ -236,10 +237,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		String name = DEFAULT_PROPERTIES;
 		if (bootstrap.contains(name)) {
 			PropertySource<?> source = bootstrap.get(name);
-			if (!environment.contains(name)) {
-				environment.addLast(source);
-			}
-			else {
+			if (environment.contains(name)) {
 				PropertySource<?> target = environment.get(name);
 				if (target instanceof MapPropertySource && target != source && source instanceof MapPropertySource) {
 					Map<String, Object> targetMap = ((MapPropertySource) target).getSource();
@@ -250,6 +248,9 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 						}
 					}
 				}
+			}
+			else {
+				environment.addLast(source);
 			}
 		}
 		// 合并额外的数据
@@ -267,6 +268,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 				result.add(source);
 			}
 		}
+        // 移除
 		for (String name : result.getPropertySourceNames()) {
 			bootstrap.remove(name);
 		}
@@ -332,6 +334,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 				@SuppressWarnings("rawtypes")
 				ApplicationContextInitializer del = ini;
 				decrypter = new DelegatingEnvironmentDecryptApplicationInitializer(del);
+                // TODO：是否是多余的，decrypter 也是调用 ini 的 initialize 方法
 				initializers.add(ini);
 				initializers.add(decrypter);
 			}

@@ -48,6 +48,7 @@ public class ConfigurationPropertiesRebinderAutoConfiguration
 	@Bean
 	@ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
 	public static ConfigurationPropertiesBeans configurationPropertiesBeans() {
+		// 实现接口 BeanPostProcessor
 		return new ConfigurationPropertiesBeans();
 	}
 
@@ -61,14 +62,15 @@ public class ConfigurationPropertiesRebinderAutoConfiguration
 	@Override
 	public void afterSingletonsInstantiated() {
 		// After all beans are initialized explicitly rebind beans from the parent
+		//
 		// so that changes during the initialization of the current context are
 		// reflected. In particular this can be important when low level services like
 		// decryption are bootstrapped in the parent, but need to change their
 		// configuration before the child context is processed.
 		if (this.context.getParent() != null) {
-			// TODO: make this optional? (E.g. when creating child contexts that prefer to
-			// be isolated.)
+			// TODO: make this optional? (E.g. when creating child contexts that prefer to be isolated.)
 			ConfigurationPropertiesRebinder rebinder = this.context.getBean(ConfigurationPropertiesRebinder.class);
+			// 获得 parent 的 beanName
 			for (String name : this.context.getParent().getBeanDefinitionNames()) {
 				rebinder.rebind(name);
 			}

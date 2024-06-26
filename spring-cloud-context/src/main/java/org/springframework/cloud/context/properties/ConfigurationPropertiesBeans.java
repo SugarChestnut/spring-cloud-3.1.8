@@ -56,6 +56,7 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 		if (applicationContext.getAutowireCapableBeanFactory() instanceof ConfigurableListableBeanFactory) {
 			this.beanFactory = (ConfigurableListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
 		}
+		// 存在父容器
 		if (applicationContext.getParent() != null && applicationContext.getParent()
 				.getAutowireCapableBeanFactory() instanceof ConfigurableListableBeanFactory) {
 			ConfigurableListableBeanFactory listable = (ConfigurableListableBeanFactory) applicationContext.getParent()
@@ -63,6 +64,7 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 			String[] names = listable.getBeanNamesForType(ConfigurationPropertiesBeans.class);
 			if (names.length == 1) {
 				this.parent = (ConfigurationPropertiesBeans) listable.getBean(names[0]);
+				// 父容器会覆盖子容器同名的类
 				this.beans.putAll(this.parent.beans);
 			}
 		}
@@ -73,6 +75,7 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 		if (isRefreshScoped(beanName)) {
 			return bean;
 		}
+		// 如果 bean 是 @ConfigurationProperties 标注的 bean
 		ConfigurationPropertiesBean propertiesBean = ConfigurationPropertiesBean.get(this.applicationContext, bean,
 				beanName);
 		if (propertiesBean != null) {

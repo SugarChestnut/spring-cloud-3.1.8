@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ExampleBeanApplicationListener implements ApplicationListener<ApplicationEvent> {
 
     @Override

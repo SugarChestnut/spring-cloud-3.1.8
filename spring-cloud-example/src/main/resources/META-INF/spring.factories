@@ -1,1 +1,2 @@
 org.springframework.context.ApplicationListener=org.springframework.cloud.example.listener.ExampleApplicationListener
+#org.springframework.cloud.bootstrap.BootstrapConfiguration=org.springframework.cloud.example.bootstrap.ExampleBootstrapConfiguration

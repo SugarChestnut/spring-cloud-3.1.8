@@ -134,6 +134,7 @@ public class ConfigurationPropertiesRebinder
 				if (getNeverRefreshable().contains(bean.getClass().getName())) {
 					return false; // ignore
 				}
+				// 销毁 bean
 				appContext.getAutowireCapableBeanFactory().destroyBean(bean);
 				appContext.getAutowireCapableBeanFactory().initializeBean(bean, name);
 				return true;
