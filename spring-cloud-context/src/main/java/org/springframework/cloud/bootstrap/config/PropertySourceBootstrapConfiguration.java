@@ -119,7 +119,7 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 		ConfigurableEnvironment environment = applicationContext.getEnvironment();
 		for (PropertySourceLocator locator : this.propertySourceLocators) {
 			Collection<PropertySource<?>> source = locator.locateCollection(environment);
-			if (source == null || source.size() == 0) {
+			if (source == null || source.isEmpty()) {
 				continue;
 			}
 			List<PropertySource<?>> sourceList = new ArrayList<>();
@@ -145,7 +145,9 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 					propertySources.remove(p.getName());
 				}
 			}
+			// 插入配置，调整优先级
 			insertPropertySources(propertySources, composite);
+			// 重置日志
 			reinitializeLoggingSystem(environment, logConfig, logFile);
 			setLogLevels(applicationContext, environment);
 			handleProfiles(environment);
@@ -194,9 +196,14 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 			incoming.addFirst(p);
 		}
 		PropertySourceBootstrapProperties remoteProperties = new PropertySourceBootstrapProperties();
+		// 从环境中获取指定 prefix 数据，设置到 @ConfigurationProperties 配置类中
+		// 这里环境只包含远程获取的配置
 		Binder.get(environment(incoming)).bind("spring.cloud.config", Bindable.ofInstance(remoteProperties));
+		// 默认允许覆盖 true false true，用来调整配置的优先级
 		if (!remoteProperties.isAllowOverride()
 				|| (!remoteProperties.isOverrideNone() && remoteProperties.isOverrideSystemProperties())) {
+			// Nacos 加载的 name 格式为  nacos, data-id,group
+			// 远程配置优先
 			for (PropertySource<?> p : reversedComposite) {
 				if (propertySources.contains(DECRYPTED_PROPERTY_SOURCE_NAME)) {
 					propertySources.addAfter(DECRYPTED_PROPERTY_SOURCE_NAME, p);
