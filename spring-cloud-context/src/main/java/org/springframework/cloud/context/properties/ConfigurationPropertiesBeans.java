@@ -72,6 +72,8 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// 如果 bean 的 scope 是 refresh，直接返回
+		// 因为在 bootstrap application context 中没有注册 RefreshScope 所以，返回的都是 false
 		if (isRefreshScoped(beanName)) {
 			return bean;
 		}
@@ -79,6 +81,7 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 		ConfigurationPropertiesBean propertiesBean = ConfigurationPropertiesBean.get(this.applicationContext, bean,
 				beanName);
 		if (propertiesBean != null) {
+			// 缓存所有配置类
 			this.beans.put(beanName, propertiesBean);
 		}
 		return bean;

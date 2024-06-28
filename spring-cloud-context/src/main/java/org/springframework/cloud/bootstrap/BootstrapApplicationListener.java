@@ -314,6 +314,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		target.addAll(getOrderedBeansOfType(context, ApplicationContextInitializer.class));
 		// 相当于增量更新
 		application.setInitializers(target);
+		// 是否需要进行配置解密
 		addBootstrapDecryptInitializer(application);
 
 		// Get the active profiles from the bootstrap context and set them in main

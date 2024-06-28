@@ -62,7 +62,6 @@ public class ConfigurationPropertiesRebinderAutoConfiguration
 	@Override
 	public void afterSingletonsInstantiated() {
 		// After all beans are initialized explicitly rebind beans from the parent
-		//
 		// so that changes during the initialization of the current context are
 		// reflected. In particular this can be important when low level services like
 		// decryption are bootstrapped in the parent, but need to change their
