@@ -1,7 +1,7 @@
-#spring:
-#    cloud:
-#        refresh:
-#            enable: true
+spring:
+    cloud:
+        refresh:
+            enable: true
 example:
     config:
         user-name: rtt

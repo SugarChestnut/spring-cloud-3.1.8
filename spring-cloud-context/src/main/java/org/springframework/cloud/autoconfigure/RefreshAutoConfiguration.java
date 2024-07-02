@@ -93,12 +93,14 @@ public class RefreshAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(RefreshScope.class)
 	public static RefreshScope refreshScope() {
+		// 实现 BeanFactoryPostProcessor 自动注册到容器 scope 缓存中
 		return new RefreshScope();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public static LoggingRebinder loggingRebinder() {
+		// 实现 ApplicationListener，更新日志配置
 		return new LoggingRebinder();
 	}
 
@@ -245,6 +247,7 @@ public class RefreshAutoConfiguration {
 				if (this.environment == null) {
 					this.environment = new StandardEnvironment();
 				}
+				// 将 spring.cloud.refresh 下的配置绑定到当前类
 				Binder.get(this.environment).bind("spring.cloud.refresh", Bindable.ofInstance(this));
 				this.bound = true;
 			}

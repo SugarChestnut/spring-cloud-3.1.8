@@ -56,6 +56,9 @@ public abstract class ContextRefresher {
 			// order matters, if cli args aren't first, things get messy
 			CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME, "defaultProperties" };
 
+	/**
+	 * 标准的配置源
+	 */
 	protected Set<String> standardSources = new HashSet<>(
 			Arrays.asList(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME,
 					StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
@@ -97,6 +100,7 @@ public abstract class ContextRefresher {
 	}
 
 	public synchronized Set<String> refreshEnvironment() {
+		// 获取非标准配置
 		Map<String, Object> before = extract(this.context.getEnvironment().getPropertySources());
 		updateEnvironment();
 		Set<String> keys = changes(before, extract(this.context.getEnvironment().getPropertySources())).keySet();
@@ -113,6 +117,7 @@ public abstract class ContextRefresher {
 		MutablePropertySources capturedPropertySources = environment.getPropertySources();
 		// Only copy the default property source(s) and the profiles over from the main
 		// environment (everything else should be pristine, just like it was on startup).
+		// 复制默认配置源
 		List<String> propertySourcesToRetain = new ArrayList<>(Arrays.asList(DEFAULT_PROPERTY_SOURCES));
 		if (!CollectionUtils.isEmpty(additionalPropertySourcesToRetain)) {
 			propertySourcesToRetain.addAll(additionalPropertySourcesToRetain);
@@ -168,6 +173,7 @@ public abstract class ContextRefresher {
 			sources.add(0, source);
 		}
 		for (PropertySource<?> source : sources) {
+			// 额外配置
 			if (!this.standardSources.contains(source.getName())) {
 				extract(source, result);
 			}

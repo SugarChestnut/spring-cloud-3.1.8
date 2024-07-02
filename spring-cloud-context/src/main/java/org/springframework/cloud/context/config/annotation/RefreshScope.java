@@ -37,6 +37,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
+// 设置 bean 的 scope 为 refresh
 @Scope("refresh")
 @Documented
 public @interface RefreshScope {

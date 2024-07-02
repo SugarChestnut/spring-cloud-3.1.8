@@ -59,6 +59,7 @@ public class LegacyContextRefresher extends ContextRefresher {
 	/* For testing. */ ConfigurableApplicationContext addConfigFilesToEnvironment() {
 		ConfigurableApplicationContext capture = null;
 		try {
+			// 拷贝默认的配置
 			StandardEnvironment environment = copyEnvironment(getContext().getEnvironment());
 
 			Map<String, Object> map = new HashMap<>();
@@ -73,6 +74,7 @@ public class LegacyContextRefresher extends ContextRefresher {
 					.web(WebApplicationType.NONE).environment(environment);
 			// Just the listeners that affect the environment (e.g. excluding logging
 			// listener because it has side effects)
+			// 替换掉 spring.factories 中加载的 listener
 			builder.application().setListeners(
 					Arrays.asList(new BootstrapApplicationListener(), new BootstrapConfigFileApplicationListener()));
 			capture = builder.run();
@@ -81,12 +83,15 @@ public class LegacyContextRefresher extends ContextRefresher {
 			}
 			MutablePropertySources target = getContext().getEnvironment().getPropertySources();
 			String targetName = null;
+			// 遍历新的环境
 			for (PropertySource<?> source : environment.getPropertySources()) {
 				String name = source.getName();
 				if (target.contains(name)) {
 					targetName = name;
 				}
+				// 不在标准的配置源
 				if (!this.standardSources.contains(name)) {
+					// 替换原始环境
 					if (target.contains(name)) {
 						target.replace(name, source);
 					}
