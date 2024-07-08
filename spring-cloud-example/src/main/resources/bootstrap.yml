@@ -2,7 +2,5 @@ spring:
     cloud:
         refresh:
             enable: true
-example:
-    config:
-        user-name: rtt
-        password: xxx
+application:
+    bootstrap: ab

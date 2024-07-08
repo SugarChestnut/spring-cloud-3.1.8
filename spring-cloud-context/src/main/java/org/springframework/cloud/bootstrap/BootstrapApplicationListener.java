@@ -109,7 +109,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		ConfigurableApplicationContext context = null;
 		// 配置名称 如果不存在环境变量 spring.cloud.bootstrap.name 就取值 bootstrap
 		String configName = environment.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
-		//
+		// 在 spring.factories 中配置
 		for (ApplicationContextInitializer<?> initializer : event.getSpringApplication().getInitializers()) {
 			if (initializer instanceof ParentContextApplicationContextInitializer) {
 				// 获取 parent context
@@ -216,6 +216,7 @@ public class BootstrapApplicationListener implements ApplicationListener<Applica
 		addAncestorInitializer(application, context);
 		// It only has properties in it now that we don't want in the parent so remove
 		// it (and it will be added back later)
+		// 移除 bootstrap 的环境配置，不影响 springboot 的配置加载
 		bootstrapProperties.remove(BOOTSTRAP_PROPERTY_SOURCE_NAME);
 		// 合并两边的环境数据
 		mergeDefaultProperties(environment.getPropertySources(), bootstrapProperties);

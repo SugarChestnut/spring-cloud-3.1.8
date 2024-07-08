@@ -191,6 +191,7 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 		// same order of PropertySources
 		// Wherever we call addLast we can use the order in the List since the first item
 		// will end up before the rest
+		// 反转
 		Collections.reverse(reversedComposite);
 		for (PropertySource<?> p : reversedComposite) {
 			incoming.addFirst(p);
@@ -214,6 +215,7 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 			}
 			return;
 		}
+		// false
 		if (remoteProperties.isOverrideNone()) {
 			for (PropertySource<?> p : composite) {
 				propertySources.addLast(p);
