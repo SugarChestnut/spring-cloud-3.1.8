@@ -189,14 +189,12 @@ public abstract class NamedContextFactory<C extends NamedContextFactory.Specific
 	public <T> T getInstance(String name, ResolvableType type) {
 		AnnotationConfigApplicationContext context = getContext(name);
 		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type);
-		if (beanNames.length > 0) {
-			for (String beanName : beanNames) {
-				if (context.isTypeMatch(beanName, type)) {
-					return (T) context.getBean(beanName);
-				}
-			}
-		}
-		return null;
+        for (String beanName : beanNames) {
+            if (context.isTypeMatch(beanName, type)) {
+                return (T) context.getBean(beanName);
+            }
+        }
+        return null;
 	}
 
 	public <T> Map<String, T> getInstances(String name, Class<T> type) {
