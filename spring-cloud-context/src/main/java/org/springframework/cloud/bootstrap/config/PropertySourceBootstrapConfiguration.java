@@ -342,8 +342,8 @@ public class PropertySourceBootstrapConfiguration implements ApplicationListener
 	 */
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		if (bootstrapProperties.isInitializeOnContextRefresh()
-				&& event.getApplicationContext() instanceof ConfigurableApplicationContext) {
+		// false
+		if (bootstrapProperties.isInitializeOnContextRefresh() && event.getApplicationContext() instanceof ConfigurableApplicationContext) {
 			if (((ConfigurableApplicationContext) event.getApplicationContext()).getEnvironment().getPropertySources()
 					.contains(BootstrapApplicationListener.BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
 				doInitialize((ConfigurableApplicationContext) event.getApplicationContext());

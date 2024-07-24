@@ -213,6 +213,7 @@ public class RefreshAutoConfiguration {
 				BeanDefinition definition = registry.getBeanDefinition(name);
 				if (isApplicable(registry, name, definition)) {
 					BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, name);
+					// 如果 scope 是 refresh，创建使用代理 ScopedProxyFactoryBean 替换，类似于 @Configuration 的 proxyBeanMethods
 					BeanDefinitionHolder proxy = ScopedProxyUtils.createScopedProxy(holder, registry, true);
 					definition.setScope("refresh");
 					if (registry.containsBeanDefinition(proxy.getBeanName())) {

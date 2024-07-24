@@ -64,7 +64,7 @@ public class ConfigurationPropertiesBeans implements BeanPostProcessor, Applicat
 			String[] names = listable.getBeanNamesForType(ConfigurationPropertiesBeans.class);
 			if (names.length == 1) {
 				this.parent = (ConfigurationPropertiesBeans) listable.getBean(names[0]);
-				// 父容器会覆盖子容器同名的类
+				// 父容器会覆盖子容器同名的类，想来一般容器中的 beans 是空的
 				this.beans.putAll(this.parent.beans);
 			}
 		}
