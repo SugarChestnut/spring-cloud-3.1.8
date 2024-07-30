@@ -238,6 +238,7 @@ public class RefreshAutoConfiguration {
 				}
 			}
 			if (type != null) {
+				// 默认为空
 				return this.refreshables.contains(type);
 			}
 			return false;
