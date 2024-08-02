@@ -171,11 +171,15 @@ public class GenericScope
 		return false;
 	}
 
+	/**
+	 * objectFactory，spring 创建 bean 的流程，包括 processor、依赖注入、生命周期方法
+	 */
 	@Override
 	public Object get(String name, ObjectFactory<?> objectFactory) {
 		BeanLifecycleWrapper value = this.cache.put(name, new BeanLifecycleWrapper(name, objectFactory));
 		this.locks.putIfAbsent(name, new ReentrantReadWriteLock());
 		try {
+			// 返回一个 factoryBean
 			return value.getBean();
 		}
 		catch (RuntimeException e) {
@@ -225,7 +229,6 @@ public class GenericScope
 			catch (ParseException e) {
 				throw new IllegalArgumentException("Cannot parse expression: " + input, e);
 			}
-
 		}
 		else {
 			return null;

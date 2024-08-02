@@ -147,7 +147,6 @@ public class RefreshAutoConfiguration {
 		public String toString() {
 			return new ToStringCreator(this)
 					.append("additionalPropertySourcesToRetain", additionalPropertySourcesToRetain).toString();
-
 		}
 
 	}

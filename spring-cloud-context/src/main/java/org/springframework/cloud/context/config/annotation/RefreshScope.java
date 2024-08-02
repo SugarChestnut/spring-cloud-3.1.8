@@ -43,6 +43,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 public @interface RefreshScope {
 
 	/**
+	 * 会给当前创建的 bean 生成一个代理对象，通过代理对象来访问，每次访问都会创建一个新的对象
 	 * @see Scope#proxyMode()
 	 * @return proxy mode
 	 */
